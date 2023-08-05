@@ -1,0 +1,154 @@
+'''Задача 30: Заполните массив элементами арифметической прогрессии. Её первый элемент, разность и количество
+элементов нужно ввести с клавиатуры. Формула для получения n-го члена прогрессии: a
+n = a1 + (n-1) * d.
+Каждое число вводится с новой строки.
+Ввод: 7 2 5
+Вывод: 7 9 11 13 15'''
+
+a1 = 7
+d = 2
+n = 5
+for i in range(n):
+    print(a1 + i * d, end=' ')
+
+
+'''Задача 32: Определить индексы элементов массива (списка), значения которых принадлежат заданному диапазону
+(т.е. не меньше заданного минимума и не больше заданного максимума)
+Ввод: [-5, 9, 0, 3, -1, -2, 1, 4, -2, 10, 2, 0, -9, 8, 10, -9, 0, -5, -5, 7]
+Вывод: [1, 9, 13, 14, 19]'''
+
+list_1 = [-5, 9, 0, 3, -1, -2, 1, 4, -2, 10, 2, 0, -9, 8, 10, -9, 0, -5, -5, 7]
+list_2 = []
+max = 10
+min = 6
+# for i in range(len(lst_1)):
+#     if list_1[i] >= min and list_1[i] <= max:
+#         list_2.append(i)
+# print(list_2)
+# или
+for i in range(len(list_1)):
+    if min <= list_1[i] <= max:
+        print(i, end=' ')
+
+
+''' Написать программу вычисления арифметического выражения заданного строкой. 
+Используются операции +,-,/,*. приоритет операций стандартный. 
+Пример: 
+    2+2 => 4; 
+    1+2*3 => 7; 
+    1-2*3 => -5.
+    a) Добавить возможность использования скобок, меняющих приоритет операций. 
+        Пример:
+            1+2*3 => 7;
+            (1+2)*3 => 9.
+'''
+
+str = '(1+2)*3-1+2*3'
+print(str, ' = ', eval(str), '\n')
+
+
+'''  Вы когда-нибудь играли в игру "Крестики-нолики"? Попробуйте создать её.
+Игра начинается с хода человека, который ставит крестики
+'''
+
+import random
+from tkinter import *
+
+root = Tk()         # делаем окно с заголовком
+root.title('Крестики-нолики')
+
+game_run = True     # если будет победитель, будет False
+field = []          # в массиве храним состояние поля
+cross_count = 0     # Подсчитываем количество крестиков на поле, максимально 5
+
+
+def new_game():     # поле и переменные обнуляются
+    for row in range(3):
+        for col in range(3):
+            field[row][col]['text'] = ' '
+            field[row][col]['background'] = 'lavender'
+    global game_run
+    game_run = True
+    global cross_count
+    cross_count = 0
+
+
+def click(row, col):        # ставим крестик и считаем
+    if game_run and field[row][col]['text'] == ' ':
+        field[row][col]['text'] = 'X'
+        global cross_count
+        cross_count += 1
+        check_win('X')      # проверка на победу
+        if game_run and cross_count < 5:
+            computer_move()
+            check_win('O')  # проверка на победу
+
+# проверка победы по всем направлениям
+
+
+def check_win(smb):
+    for n in range(3):
+        check_line(field[n][0], field[n][1], field[n][2], smb)
+        check_line(field[0][n], field[1][n], field[2][n], smb)
+    check_line(field[0][0], field[1][1], field[2][2], smb)
+    check_line(field[2][0], field[1][1], field[0][2], smb)
+
+# на входе три поля и символ, если символ есть в этих трех полях,
+# то меняем цвет полей на розовый и остановка игры
+
+
+def check_line(a1, a2, a3, smb):
+    if a1['text'] == smb and a2['text'] == smb and a3['text'] == smb:
+        a1['background'] = a2['background'] = a3['background'] = 'pink'
+        global game_run
+        game_run = False
+
+
+def can_win(a1, a2, a3, smb):   # проверка на победу
+    res = False
+    if a1['text'] == smb and a2['text'] == smb and a3['text'] == ' ':
+        a3['text'] = 'O'
+        res = True
+    if a1['text'] == smb and a2['text'] == ' ' and a3['text'] == smb:
+        a2['text'] = 'O'
+        res = True
+    if a1['text'] == ' ' and a2['text'] == smb and a3['text'] == smb:
+        a1['text'] = 'O'
+        res = True
+    return res
+
+
+def computer_move():
+    for n in range(3):
+        if can_win(field[n][0], field[n][1], field[n][2], 'O'):
+            return
+        if can_win(field[0][n], field[1][n], field[2][n], 'O'):
+            return
+    if can_win(field[0][0], field[1][1], field[2][2], 'O'):
+        return
+    if can_win(field[2][0], field[1][1], field[0][2], 'O'):
+        return
+
+    while True:  # случ. образом перебираются поля, пока не выпадет свободное
+        row = random.randint(0, 2)
+        col = random.randint(0, 2)
+        if field[row][col]['text'] == ' ':
+            field[row][col]['text'] = 'O'
+            break
+
+
+for row in range(3):  # создаем поле кнопок
+    line = []
+    for col in range(3):
+        button = Button(text=' ', width=6, height=3,
+                        font=('Verdana', 22, 'bold'),
+                        background='lavender',
+                        command=lambda row=row, col=col: click(row, col))
+        button.grid(row=row, column=col, sticky='nsew')
+        line.append(button)
+    field.append(line)
+
+new_button = Button(text='Новая игра', command=new_game)
+new_button.grid(row=3, column=0, columnspan=3, sticky='nsew')
+
+root.mainloop()
